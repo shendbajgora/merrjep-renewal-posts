@@ -61,14 +61,11 @@ function renewalPost() {
 
 // Loop posts
 function loopPosts() {
-	
-	var aTags = getPosts();
-
 	// Method 1: Loop all
 	// loopAll(aTags);
 
 	// Method 2: Loop one by one every x miliseconds
-	loopEachPosts(aTags, 1000); // delay 1000 miliseconds
+	loopEachPosts(1000); // delay 1000 miliseconds
 }
 
 // Method 1: Loop all
@@ -85,31 +82,38 @@ function loopAll(aTags) {
 }
 
 // Method 2: Loop one by one every x miliseconds
-function loopEachPosts(aTags, miliseconds) {
+function loopEachPosts(miliseconds) {
 
 	var counter = 0,
-		maxATags = aTags.length,
+		posts = getPosts(),
 		rightArrow = document.querySelectorAll('.pagination .pull-left')[2],
+		synced = true,
 		interval = setInterval(function() {
 
-			if (counter < maxATags) {
-				wind.open(aTags[counter++].getAttribute('href'));
+			if (!synced) {
+				return;
+			}
+
+			if (counter < posts.length) {
+                wind.open(posts[counter++].getAttribute('href'));
 			} else if (rightArrow) {
 
-                rightArrow.click();
+				rightArrow.click();
+				synced = false;
 
-                setTimeout(function() {
+				setTimeout(function(){
                     counter = 0;
-                    maxATags = getPosts().length;
+                    posts = getPosts();
 
-                    if (maxATags < 50) {
+                    if (posts.length < 50) {
                         rightArrow = null;
                     }
-                }, 2000);
 
+                    synced = true;
+				}, 2000);
 			} else {
 				clearInterval(interval);
-				reloadPage(0);
+                reloadPage(0);
 			}
 		}, miliseconds);
 }
