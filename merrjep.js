@@ -38,6 +38,11 @@ function closePage() {
 	wind.close();
 }
 
+// Get posts
+function getPosts() {
+    return document.querySelectorAll('.my-ads-layout > table > tbody > tr > td:nth-child(2) > .btn-toolbar > a:last-child');
+}
+
 // Renewal post
 function renewalPost() {
 
@@ -57,7 +62,7 @@ function renewalPost() {
 // Loop posts
 function loopPosts() {
 	
-	var aTags = document.querySelectorAll('.my-ads-layout > table > tbody > tr > td:nth-child(2) > .btn-toolbar > a:last-child');
+	var aTags = getPosts();
 
 	// Method 1: Loop all
 	// loopAll(aTags);
@@ -84,10 +89,24 @@ function loopEachPosts(aTags, miliseconds) {
 
 	var counter = 0,
 		maxATags = aTags.length,
+		rightArrow = document.querySelectorAll('.pagination .pull-left')[2],
 		interval = setInterval(function() {
 
 			if (counter < maxATags) {
 				wind.open(aTags[counter++].getAttribute('href'));
+			} else if (rightArrow) {
+
+                rightArrow.click();
+
+                setTimeout(function() {
+                    counter = 0;
+                    maxATags = getPosts().length;
+
+                    if (maxATags < 50) {
+                        rightArrow = null;
+                    }
+                }, 2000);
+
 			} else {
 				clearInterval(interval);
 				reloadPage(0);
