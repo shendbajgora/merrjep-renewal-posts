@@ -28,7 +28,7 @@ function initScript() {
 	// Loop posts
 	else if (url.indexOf('incView=~/Views/Advertiser/Index.cshtml') > -1 && 
 			 url.indexOf('incView=~/Views/Advertiser/My_Ads.cshtml') > -1) {
-		loopPosts();
+		loopEachPosts(100); // delay 1000 miliseconds
 	}
 }
 
@@ -59,34 +59,12 @@ function renewalPost() {
 	}, 100);
 }
 
-// Loop posts
-function loopPosts() {
-	// Method 1: Loop all
-	// loopAll(aTags);
-
-	// Method 2: Loop one by one every x miliseconds
-	loopEachPosts(1000); // delay 1000 miliseconds
-}
-
-// Method 1: Loop all
-function loopAll(aTags) {
-
-	aTags.forEach(function(aTag) {
-		
-		var aHref = aTag.getAttribute('href');
-
-		wind.open(aHref);
-	});
-
-	reloadPage(30000); // Reload page after 30 seconds.
-}
-
 // Method 2: Loop one by one every x miliseconds
 function loopEachPosts(miliseconds) {
 
 	var counter = 0,
 		posts = getPosts(),
-		rightArrow = document.querySelectorAll('.pagination .pull-left')[2],
+		completed = false,
 		synced = true,
 		interval = setInterval(function() {
 
@@ -95,25 +73,35 @@ function loopEachPosts(miliseconds) {
 			}
 
 			if (counter < posts.length) {
-                wind.open(posts[counter++].getAttribute('href'));
-			} else if (rightArrow) {
-
-				rightArrow.click();
-				synced = false;
-
-				setTimeout(function(){
-                    counter = 0;
-                    posts = getPosts();
-
-                    if (posts.length < 50) {
-                        rightArrow = null;
-                    }
-
-                    synced = true;
-				}, 2000);
+               	wind.open(posts[counter++].getAttribute('href'));
 			} else {
-				clearInterval(interval);
-                reloadPage(0);
+				
+				var ranges = document.querySelector('.pagination .pull-left');
+				
+				if (ranges && !completed) {
+					
+					var values = ranges.innerText
+						.replace(" - ", ",")
+						.replace(" nga ", ",").split(","),
+							from = parseInt(values[1]),
+							to = parseInt(values[2]);
+					
+					if (values && values.length === 3 && from < to) {
+						synced = false;
+						document.querySelectorAll('.pagination .pull-left')[2].click();
+					} else {
+						completed = true;
+					}
+					
+					setTimeout(function(){
+						counter = 0;
+						posts = getPosts();
+						synced = true;
+					}, 3000);
+				} else {
+					clearInterval(interval);
+                	reloadPage(0);	
+				}
 			}
 		}, miliseconds);
 }
