@@ -51,19 +51,18 @@ function renewalPost() {
         var renewal = document.querySelector('input[value="Renewal"]');
 
         if (renewal) {
+            clearInterval(interval);
             renewal.click();
 
             setTimeout(function () {
-
                 var btns = document.querySelectorAll('input[type="submit"]');
 
                 btns.forEach(function (btn) {
                     btn.click();
                 });
             }, 100);
-            clearInterval(interval);
         }
-    }, 0);
+    }, 500);
 }
 
 // Method 2: Loop one by one every x miliseconds
